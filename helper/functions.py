@@ -16,7 +16,7 @@ def dataset_files():
         
         subdir_path = os.path.abspath(subdir)
 
-        for f in files[:5]:
+        for f in files[:500]:
             yield os.path.join(subdir_path, f)
 
 def test_dataset_files():
@@ -71,14 +71,13 @@ def generate_docIDs():
 	return docIDs
 
 def fill_barrels(tempBarrels):
-	for index, barrel in enumerate(tempBarrels):
-		if barrel == None:
-			continue
+	for index, barrel in tempBarrels.items():
+		print("Index: {}  barrel length: {}".format(index, len(barrel)))
 		
 		try:
 			with open(os.path.join(BARRELS_PATH, "barrel_{}.json".format(index)), 'r') as barrel_file:
 				barrel_content = json.load(barrel_file)
-		except Exception:
+		except FileNotFoundError:
 			barrel_content = {}
 
 		for key, value in barrel.items():

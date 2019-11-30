@@ -19,13 +19,12 @@ def index():
 		is_indexed = []
 
 
-	tmpBarrels = [None] * NO_OF_BARRELS
+	tmpBarrels = dict()
 
 	for file in tqdm(dataset_files()):
 		
 		doc_id = docIDs.get(file)
 
-		print(str(doc_id) + "\n\n\n")
 		if doc_id in is_indexed:
 			continue
 		
@@ -34,13 +33,10 @@ def index():
 		for position, word in enumerate(words):
 			
 			word_id = lexicon.get(word)
-			barrel_num = int(word_id/BARREL_CAPACITY)
+			barrel_num = int(word_id//BARREL_CAPACITY)
 
-			if tmpBarrels[barrel_num] == None:
+			if barrel_num not in tmpBarrels:
 				tmpBarrels[barrel_num] = dict()
-				
-			
-			print("wordid: {}  barrel number: {}".format(word_id, barrel_num))
 			
 			if doc_id not in tmpBarrels[barrel_num].keys():
 				tmpBarrels[barrel_num][doc_id] = {}
@@ -50,9 +46,12 @@ def index():
 			
 			else:
 				tmpBarrels[barrel_num][doc_id][word_id] = [position]
-
+		
+		is_indexed.append(doc_id)
 		
 	fill_barrels(tmpBarrels)
+	with open(os.path.join(EXTRA_PATH, 'is_indexed.data'), "wb") as fp:
+			pickle.dump(is_indexed, fp)
 
 
 

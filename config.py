@@ -15,24 +15,9 @@ EXTRA_PATH = os.path.join(FILES_PATH, 'extra')
 
 
 NO_OF_THREADS = 8
-NO_OF_BARRELS = 64
-BARREL_CAPACITY = 8000
+# NO_OF_BARRELS = 64
+BARREL_CAPACITY = 16000
 
-def clean_project():
-    try:
-        shutil.rmtree(FILES_PATH, ignore_errors=True)
-    except:
-        pass
-
-    try:
-        shutil.rmtree(EXTRA_PATH, ignore_errors=True)
-    except:
-        pass
-
-    try:
-        shutil.rmtree(BARRELS_PATH, ignore_errors=True)
-    except:
-        pass
 
 def build_paths():
 
