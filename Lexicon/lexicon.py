@@ -1,33 +1,15 @@
 import json
 import os
-import string
 from tqdm import tqdm
 import time
-from unidecode import unidecode
 
 # import multiprocessing
 # from concurrent.futures import ThreadPoolExecutor
 
-from helper import generators
+from helper.functions import *
 from config import DATA_PATH, LEXICON_PATH, NO_OF_THREADS
 
 
-def parse_file(path):
-
-	try:
-		with open(path, 'r', encoding="utf8") as f:
-			data = json.load(f)
-
-		text = data['text']
-
-		translator = str.maketrans('', '', string.punctuation)
-		text = text.lower().replace("-", " ").translate(translator)
-		tokens = unidecode(text).split()
-		
-		return [token.lower() for token in tokens if token.isalpha()]
-
-	except Exception:
-		print("Failed: " + path)
 
 
 def build_lexicon():
@@ -49,7 +31,7 @@ def build_lexicon():
 	# 	words = words.union(result)
  
 	#Single Threaded 115s 10000 files
-	for file in tqdm(generators.dataset_files()):
+	for file in tqdm(dataset_files()):
 		words = words.union(set(parse_file(file)))
 
 	for index, word in enumerate(words):

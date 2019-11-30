@@ -1,11 +1,12 @@
 import time
 import os
 
-import config
-from helper import generators
+
+from helper.functions import *
 from Lexicon import lexicon
 
 if __name__ == "__main__":
 
-    generators.test()
+    build_paths()
+    lexicon.load_lexicon()
     
