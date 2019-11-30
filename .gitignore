@@ -1,5 +1,8 @@
-#Ignore Data folder
+# Ignore Data folder
 Data/
 
-#ignore all json files
+# Ignore Storage folder
+Storage/
+
+# Ignore all json files
 *.json

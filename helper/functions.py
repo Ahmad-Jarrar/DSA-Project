@@ -3,6 +3,7 @@ import json
 from unidecode import unidecode
 import string
 import nltk
+import pickle
 
 from config import *
 
@@ -15,7 +16,7 @@ def dataset_files():
         
         subdir_path = os.path.abspath(subdir)
 
-        for f in files[:500]:
+        for f in files[:5]:
             yield os.path.join(subdir_path, f)
 
 def test_dataset_files():
@@ -47,3 +48,41 @@ def parse_file(path):
 	tokens = [lemmatizer.lemmatize(stemmer.stem(token)) for token in tokens]
 
 	return tokens
+
+
+def generate_docIDs():
+	try:
+		with open(os.path.join(EXTRA_PATH, 'doc_ids.json'), "r") as fp:
+			docIDs = json.load(fp)
+	except FileNotFoundError:
+		print("Could not find previous Doc IDs")
+		print("Generating from scratch")
+		docIDs = dict()
+
+	current_max_id = len(docIDs.keys())
+	for file in dataset_files():
+		if docIDs.get(file) == None:
+			docIDs[file] = current_max_id
+			current_max_id += 1
+
+	with open(os.path.join(EXTRA_PATH, 'doc_ids.json'), "w") as fp:
+			json.dump(docIDs, fp)
+
+	return docIDs
+
+def fill_barrels(tempBarrels):
+	for index, barrel in enumerate(tempBarrels):
+		if barrel == None:
+			continue
+		
+		try:
+			with open(os.path.join(BARRELS_PATH, "barrel_{}.json".format(index)), 'r') as barrel_file:
+				barrel_content = json.load(barrel_file)
+		except Exception:
+			barrel_content = {}
+
+		for key, value in barrel.items():
+			barrel_content[key] = value
+		
+		with open(os.path.join(BARRELS_PATH, "barrel_{}.json".format(index)), 'w') as barrel_file:
+				json.dump(barrel_content, barrel_file)

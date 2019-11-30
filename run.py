@@ -4,9 +4,11 @@ import os
 
 from helper.functions import *
 from Lexicon import lexicon
+from Indexing.ForwardIndex import index 
 
 if __name__ == "__main__":
 
+    clean_project()
     build_paths()
-    lexicon.load_lexicon()
-    
+    lexicon.load_lexicon(update=True)
+    index()
