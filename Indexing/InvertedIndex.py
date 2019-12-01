@@ -10,13 +10,26 @@ from collections import defaultdict, OrderedDict
 # print(sorted(d.items(), key = lambda kv:(kv[1], kv[0])))  
 
 def sorted_hitlist(hitlist):
+	"""
+	Orders docIDs according to No. of hits to speed up search and order according to importance
+	args:
+		hitlist: dict {docID:hits}
+	returns: OrderedDict{docID:hits}
+	"""
 	order = sorted(hitlist, key = lambda key: len(hitlist[key]), reverse=True)
 	return OrderedDict([(index, hitlist.get(index)) for index in order])
 
 
 def invert_barrel(barrel):
-	
-	# invert
+	"""
+	Takes barrel and inverts it to change mapping docID -> wordIDs -> hits
+	to mapping wordID -> docIDs -> hits
+	and then orders it
+	args:
+		barrel: dict {docID: wordIDs}
+	returns: dict {wordID: docIDs}
+	"""
+
 	inverted_barrel = dict()
 
 	for doc_id, hitlist in barrel.items():
@@ -35,6 +48,10 @@ def invert_barrel(barrel):
 	return inverted_barrel
 
 def inverted_index():
+	"""
+	Takes barrels containing Forward Indices and produces barrels containing Inverted indices
+	"""
+	
 	print("Building Inverted Index!")
 
 	for barrel_path in tqdm(barrels(mode='forward', full=False)):

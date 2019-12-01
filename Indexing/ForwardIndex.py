@@ -7,7 +7,14 @@ from Lexicon.lexicon import load_lexicon
 
 
 def insert_in_barrels(barrels, doc_id, words, lexicon):
-
+	"""
+	Generates hitlists and add entries of document in barrels according to words it contains
+	args:
+		barrels: dict of barrels {barrel_index : docIDs}
+		doc_id: docID to add
+		words: list of words the document contains
+		lexicon: dict containing words and their word_id
+	"""
 	for position, word in enumerate(words):
 		
 		word_id = lexicon.get(word)
@@ -34,6 +41,9 @@ def insert_in_barrels(barrels, doc_id, words, lexicon):
 	return barrels
 
 def forward_index():
+	"""
+	Function to produce forward index of all documents in Dataset
+	"""
 	print("Building Forward Index!")
 
 	docIDs = generate_docIDs()

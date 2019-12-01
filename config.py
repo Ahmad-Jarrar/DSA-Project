@@ -27,6 +27,9 @@ BARREL_CAPACITY = 16000
 
 
 def build_paths():
+    """
+        Run to build the environment for internal files of project
+    """
     print("Creating Paths!")
     try:
         os.stat(FILES_PATH)

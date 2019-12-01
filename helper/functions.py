@@ -12,15 +12,24 @@ from nltk.stem import WordNetLemmatizer, PorterStemmer
 
 
 def dataset_files():
+	"""
+		Generator to traverse through Dataset
+	"""
+
 	for subdir, _, files in os.walk(DATA_PATH):
 		
 		subdir_path = os.path.abspath(subdir)
 
-		for f in files[:10000]:
+		for f in files[:15000]:
 			yield os.path.join(subdir_path, f)
 
 def barrels(mode='forward', full=True):
-	
+	"""
+		Generator to traverse through Dataset
+		args:
+			String mode: 'forward' or 'backward'
+			bool full: True for full barrels else short barrels
+	"""
 	if full:
 		if mode.lower() == 'forward':
 			path = FORWARD_BARRELS_PATH
@@ -46,6 +55,10 @@ def barrels(mode='forward', full=True):
 
 
 def test_dataset_files():
+	"""
+		Testing function for generator function
+		No more used
+	"""
 	file_names = []
 	for file in dataset_files():
 		print(file)
@@ -54,6 +67,12 @@ def test_dataset_files():
 	print(len(file_names))
 
 def parse_string(text):
+	"""
+	Function to clean string
+	Tokenizes, stems and lematizes strings
+	args:
+		string text
+	"""
 
 	text = unidecode(text)
 	tokens = nltk.regexp_tokenize(text, r'\w+')
@@ -69,6 +88,13 @@ def parse_string(text):
 	return [lemmatizer.lemmatize(stemmer.stem(token)) for token in tokens]
 
 def parse_file(path, title=False):
+	"""
+	Function to parse files
+	Opens files and clean the content
+	args:
+		path: path to the file
+		title: part of file to parsed True for only title else text
+	"""
 
 	with open(path, 'r', encoding="utf8") as f:
 		data = json.load(f)
@@ -81,8 +107,11 @@ def parse_file(path, title=False):
 
 	return parse_string(text)
 
-
 def generate_docIDs():
+	"""
+		Indexes the files in the dataset folder
+	"""
+
 	try:
 		with open(os.path.join(EXTRA_PATH, 'doc_ids.json'), "r") as fp:
 			docIDs = json.load(fp)
@@ -103,9 +132,14 @@ def generate_docIDs():
 	return docIDs
 
 def fill_barrels(tempBarrels):
+	"""
+	Stores the Forward Indexed documents in their respective Barrels
+	args:
+		tempBarrels: dict with index of barrel as key and entries as values
+	"""
 
 	for index, barrel in tempBarrels.items():
-		print("Index: {}  barrel length: {}".format(index, len(barrel)))
+		print("Adding: {} entries to barrel: {}".format(len(barrel), index))
 		
 		try:
 			with open(os.path.join(FORWARD_BARRELS_PATH, "barrel_{}.json".format(index)), 'r') as barrel_file:
@@ -113,14 +147,20 @@ def fill_barrels(tempBarrels):
 		except FileNotFoundError:
 			barrel_content = {}
 
+		print("Before appending: {} entries in barrel: {}".format(len(barrel_content), index))
 		for key, value in barrel.items():
 			barrel_content[key] = value
 		
+		print("After appending: {} entries in barrel: {}".format(len(barrel_content), index))
 		with open(os.path.join(FORWARD_BARRELS_PATH, "barrel_{}.json".format(index)), 'w') as barrel_file:
 				json.dump(barrel_content, barrel_file)
 
 def fill_short_barrels(tempBarrels):
-
+	"""
+	Stores the Forward Indexed titles in their respective Short Barrels
+	args:
+		tempBarrels: dict with index of barrel as key and entries as values
+	"""
 	for index, barrel in tempBarrels.items():
 		print("Index: {}  short barrel length: {}".format(index, len(barrel)))
 		

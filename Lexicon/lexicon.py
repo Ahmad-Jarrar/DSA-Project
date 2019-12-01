@@ -9,19 +9,23 @@ import time
 from helper.functions import *
 from config import DATA_PATH, LEXICON_PATH, NO_OF_THREADS
 
-
-
-
 def build_lexicon():
+	"""
+	Produces a lexicon containing all the words contained in text of documents in Dataset
+
+	returns: dict {word: word_id}
+	"""
 	print("Building Lexicon!")
 	try:
 		with open(LEXICON_PATH, 'r', encoding='utf8') as lexicon_file:
 			lexicon = json.load(lexicon_file)
-			words = lexicon.keys()
+			words_in_lexicon = set(lexicon.keys())
 	except FileNotFoundError:
 		lexicon = dict()
-		words = set()
-
+		words_in_lexicon = set()
+	
+	
+	words = set()
 	try:
 		with open(os.path.join(EXTRA_PATH, 'added_to_lexicon.data'), "rb") as fp:   # Unpickling
 			is_included_in_lexicon = pickle.load(fp)
@@ -50,9 +54,10 @@ def build_lexicon():
 		words = words.union(set(parse_file(file)))
 		is_included_in_lexicon.append(file)
 
-	# Change later
+	bias = len(words_in_lexicon)
+	words = [word for word in words if lexicon.get(word) == None]
 	for index, word in enumerate(words):
-		lexicon[word] = index
+		lexicon[word] = index + bias
 
 	with open(LEXICON_PATH, 'w', encoding='utf8') as lexicon_file:
 			json.dump(lexicon, lexicon_file)
@@ -65,6 +70,12 @@ def build_lexicon():
 	return lexicon
 
 def load_lexicon(update=False):
+	"""
+	Load lexicon into memory
+	args:
+		bool update: if True, looks into dataset to look if new documents added which might have new words
+	returns: dict {word : word_id}
+	"""
 	if update == True:
 		return build_lexicon()
 		
