@@ -13,7 +13,7 @@ from config import DATA_PATH, LEXICON_PATH, NO_OF_THREADS
 
 
 def build_lexicon():
-
+	print("Building Lexicon!")
 	try:
 		with open(LEXICON_PATH, 'r', encoding='utf8') as lexicon_file:
 			lexicon = json.load(lexicon_file)
@@ -60,6 +60,8 @@ def build_lexicon():
 	with open(os.path.join(EXTRA_PATH, 'added_to_lexicon.data'), "wb") as fp:   # Unpickling
 			pickle.dump(is_included_in_lexicon,fp)
 
+	print("Lexicon Complete!")
+	print("Lexicon Length: " + str(len(lexicon)))
 	return lexicon
 
 def load_lexicon(update=False):
