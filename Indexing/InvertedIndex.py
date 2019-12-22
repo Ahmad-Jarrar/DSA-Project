@@ -1,13 +1,13 @@
 import os
 from tqdm import tqdm
+import time
+from multiprocessing import Process
 
 from config import *
 from helper.functions import *
 from Lexicon.lexicon import load_lexicon
 
-from collections import defaultdict, OrderedDict
-
-# print(sorted(d.items(), key = lambda kv:(kv[1], kv[0])))  
+from collections import defaultdict, OrderedDict  
 
 def sorted_hitlist(hitlist):
 	"""
@@ -40,12 +40,40 @@ def invert_barrel(barrel):
 
 			inverted_barrel[word_id][doc_id] = hits
 
-	# Might change later
-	# for word_id, hitlist in inverted_barrel.items():
-		
-	# 	inverted_barrel[word_id] = sorted_hitlist(hitlist)
-
 	return inverted_barrel
+
+def build_short_inverted_barrel(barrel_path):
+	try:
+		with open(barrel_path, 'r') as barrel_file:
+			barrel = json.load(barrel_file)
+			
+	except Exception:
+		print('Barrel: {} Failed'.format(barrel_path))
+		
+	
+	# get file name for barrel
+	barrel_name = barrel_path.split('/')[-1]
+
+	inverted_barrel = invert_barrel(barrel)
+
+	# Save Inverted Barrel
+	with open(os.path.join(SHORT_INVERTED_BARRELS_PATH, barrel_name), 'w') as inverted_barrel_file:
+			json.dump(inverted_barrel, inverted_barrel_file)
+
+def build_inverted_barrel(barrel_path):
+	try:
+		with open(barrel_path, 'r') as barrel_file:
+			barrel = json.load(barrel_file)
+			
+	except Exception:
+		print('Barrel: {} Failed'.format(barrel_path))
+
+	barrel_name = barrel_path.split('/')[-1]
+
+	inverted_barrel = invert_barrel(barrel)
+
+	with open(os.path.join(INVERTED_BARRELS_PATH, barrel_name), 'w') as inverted_barrel_file:
+			json.dump(inverted_barrel, inverted_barrel_file)
 
 def inverted_index():
 	"""
@@ -53,43 +81,25 @@ def inverted_index():
 	"""
 	
 	print("Building Inverted Index!")
-
+	
 	# For Short Barrels
+	processes = []
 	for barrel_path in tqdm(barrels(mode='forward', full=False)):
 		
-		try:
-			with open(barrel_path, 'r') as barrel_file:
-				barrel = json.load(barrel_file)
-				
-		except Exception:
-			print('Barrel: {} Failed'.format(barrel_path))
-			continue
-		
-		# get file name for barrel
-		barrel_name = barrel_path.split('/')[-1]
+		processes.append(Process(target=build_short_inverted_barrel, args=(barrel_path,)))
+		processes[-1].start()
 
-		inverted_barrel = invert_barrel(barrel)
-
-		# Save Inverted Barrel
-		with open(os.path.join(SHORT_INVERTED_BARRELS_PATH, barrel_name), 'w') as inverted_barrel_file:
-				json.dump(inverted_barrel, inverted_barrel_file)
+	for p in processes:
+		p.join()
 
 	# For full barrels
+	processes = []
 	for barrel_path in tqdm(barrels(mode='forward', full=True)):
-		
-		try:
-			with open(barrel_path, 'r') as barrel_file:
-				barrel = json.load(barrel_file)
-				
-		except Exception:
-			print('Barrel: {} Failed'.format(barrel_path))
-			continue
 
-		barrel_name = barrel_path.split('/')[-1]
+		processes.append(Process(target=build_inverted_barrel, args=(barrel_path,)))
+		processes[-1].start()
 
-		inverted_barrel = invert_barrel(barrel)
-
-		with open(os.path.join(INVERTED_BARRELS_PATH, barrel_name), 'w') as inverted_barrel_file:
-				json.dump(inverted_barrel, inverted_barrel_file)
+	for p in processes:
+		p.join()
 
 	print("Inverted Index Complete!")

@@ -22,8 +22,8 @@ SHORT_INVERTED_BARRELS_PATH = os.path.join(SHORT_BARRELS, 'inverted_barrels')
 
 NO_OF_THREADS = 8
 # NO_OF_BARRELS = 64
-# Todo: Change Later
-BARREL_CAPACITY = 1000
+
+BARREL_CAPACITY = 16000
 
 
 def build_paths():

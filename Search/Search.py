@@ -61,7 +61,7 @@ class Searcher():
 		return self.single_word_rank(total_hits)
 
 	# Done
-	def single_word_rank(self, hits:dict, alpha=1., beta=0.3):
+	def single_word_rank(self, hits:dict, alpha=1., beta=0.2):
 		"""
 		Take a dict  as {'title_hits':title_hits, 'hits':hits}
 		and Ranks documnent according to the hits
@@ -69,7 +69,7 @@ class Searcher():
 		Args:
 			dict hits: dict containing title_hits and hits
 			float alpha: weight of title hit range(0, 1), Default=1.
-			float beta: weight of normal hit range(0, 1), Default=0.1
+			float beta: weight of normal hit range(0, 1), Default=0.2
 		Returns:
 			dict ranks: {docID: rank}
 		Basic functionality, can be upgraded later
@@ -148,7 +148,7 @@ class Searcher():
 		documents = []
 
 		for doc_id in docIDs:
-			print("Doc ID: " + doc_id + "Document Path: " + self.doc_ids.inverse.get(int(doc_id)))
+			# print("Doc ID: " + doc_id + "Document Path: " + self.doc_ids.inverse.get(int(doc_id)))
 			file_path = self.doc_ids.inverse.get(int(doc_id))
 			if load:
 				try:

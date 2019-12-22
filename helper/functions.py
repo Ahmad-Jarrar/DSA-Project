@@ -24,7 +24,7 @@ def dataset_files():
 		subdir_path = os.path.abspath(subdir)
 
 		#To specify range of files in each directory to index, add [:RANGE] after files
-		for f in files[:100]:
+		for f in files[:10000]:
 			yield os.path.join(subdir_path, f)
 
 def barrels(mode='forward', full=True):
