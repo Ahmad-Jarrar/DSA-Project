@@ -9,26 +9,32 @@ from config import *
 
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer, PorterStemmer
+from nltk.corpus import wordnet
+from nltk import word_tokenize, pos_tag
 
 
 def dataset_files():
 	"""
 		Generator to traverse through Dataset
+		yeilds path of dataset files one by one
 	"""
 
 	for subdir, _, files in os.walk(DATA_PATH):
 		
 		subdir_path = os.path.abspath(subdir)
 
-		for f in files[:15000]:
+		#To specify range of files in each directory to index, add [:RANGE] after files
+		for f in files[:100]:
 			yield os.path.join(subdir_path, f)
 
 def barrels(mode='forward', full=True):
 	"""
-		Generator to traverse through Dataset
+		Generator to traverse through Barrels
 		args:
-			String mode: 'forward' or 'backward'
+			String mode: 'forward' or 'inverted'
 			bool full: True for full barrels else short barrels
+		
+		yeilds path of files one by ones
 	"""
 	if full:
 		if mode.lower() == 'forward':
@@ -53,18 +59,15 @@ def barrels(mode='forward', full=True):
 		for f in files:
 			yield os.path.join(subdir_path, f)
 
+def get_wordnet_pos(word):
+    """Map POS tag to first character lemmatize() accepts"""
+    tag = nltk.pos_tag([word])[0][1][0].upper()
+    tag_dict = {"J": wordnet.ADJ,
+                "N": wordnet.NOUN,
+                "V": wordnet.VERB,
+                "R": wordnet.ADV}
 
-def test_dataset_files():
-	"""
-		Testing function for generator function
-		No more used
-	"""
-	file_names = []
-	for file in dataset_files():
-		print(file)
-		file_names.append(file)
-
-	print(len(file_names))
+    return tag_dict.get(tag, wordnet.NOUN)
 
 def parse_string(text):
 	"""
@@ -73,19 +76,24 @@ def parse_string(text):
 	args:
 		string text
 	"""
-
-	text = unidecode(text)
-	tokens = nltk.regexp_tokenize(text, r'\w+')
-
-	# Removed due to huge performance penalty
-	# tokens = [token for token in tokens if not token in stopwords.words('english')]
-	
-	tokens = [token for token in tokens if not(token.isdigit())]
-	
-	stemmer = PorterStemmer()
 	lemmatizer = WordNetLemmatizer()
 
-	return [lemmatizer.lemmatize(stemmer.stem(token)) for token in tokens]
+	# Remove unicode characters
+	text = unidecode(text)
+
+	# Tokenize the sting to array of words while also removing any punctuation
+	tokens = nltk.regexp_tokenize(text, r'\w+')
+	
+	final_tokens = []
+	for token in tokens:
+		if token.isdigit():
+		# or token in stopwords.words('english'):
+			continue
+
+		# Lemmatize and Stem
+		final_tokens.append(lemmatizer.lemmatize(token, pos=get_wordnet_pos(token)))
+	
+	return final_tokens
 
 def parse_file(path, title=False):
 	"""
@@ -107,7 +115,7 @@ def parse_file(path, title=False):
 
 	return parse_string(text)
 
-def generate_docIDs():
+def get_docIDs():
 	"""
 		Indexes the files in the dataset folder
 	"""
@@ -120,6 +128,7 @@ def generate_docIDs():
 		print("Generating from scratch")
 		docIDs = dict()
 
+	# assign unique docids to new files
 	current_max_id = len(docIDs.keys())
 	for file in dataset_files():
 		if docIDs.get(file) == None:
@@ -155,7 +164,7 @@ def fill_barrels(tempBarrels):
 		with open(os.path.join(FORWARD_BARRELS_PATH, "barrel_{}.json".format(index)), 'w') as barrel_file:
 				json.dump(barrel_content, barrel_file)
 
-def fill_short_barrels(tempBarrels):
+def fill_short_barrels(tempBarrels):	
 	"""
 	Stores the Forward Indexed titles in their respective Short Barrels
 	args:
@@ -175,3 +184,36 @@ def fill_short_barrels(tempBarrels):
 		
 		with open(os.path.join(SHORT_FORWARD_BARRELS_PATH, "barrel_{}.json".format(index)), 'w') as barrel_file:
 				json.dump(barrel_content, barrel_file)
+
+def load_barrel(barrel_id:int, mode='inverted', full=True):
+	"""
+		Function load load barrels in memory
+		args:
+			Integer barrel_id: barrel number to load
+			String mode: 'forward' or 'inverted', Default 'inverted'
+			bool full: True for full barrels else short barrels
+		
+	"""
+
+	if full:
+		if mode.lower() == 'forward':
+			path = FORWARD_BARRELS_PATH
+		elif mode.lower() == 'inverted':
+			path = INVERTED_BARRELS_PATH
+		else:
+			return None
+	else:
+		if mode.lower() == 'forward':
+			path = SHORT_FORWARD_BARRELS_PATH
+		elif mode.lower() == 'inverted':
+			path = SHORT_INVERTED_BARRELS_PATH
+		else:
+			return None
+	
+	barrel_path = os.path.join(path, "barrel_{}.json".format(barrel_id))
+
+	try:
+		with open(barrel_path, 'r') as barrel_file:
+			return json.load(barrel_file)
+	except FileNotFoundError:
+		raise FileNotFoundError("Barrel \'{}\' does not exist at \'{}\'".format(barrel_id, barrel_path))

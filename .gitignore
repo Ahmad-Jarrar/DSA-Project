@@ -6,3 +6,6 @@ Storage/
 
 # Ignore all json files
 *.json
+
+# ignore vs code workspace config
+*.code-workspace

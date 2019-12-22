@@ -24,7 +24,6 @@ def invert_barrel(barrel):
 	"""
 	Takes barrel and inverts it to change mapping docID -> wordIDs -> hits
 	to mapping wordID -> docIDs -> hits
-	and then orders it
 	args:
 		barrel: dict {docID: wordIDs}
 	returns: dict {wordID: docIDs}
@@ -41,9 +40,10 @@ def invert_barrel(barrel):
 
 			inverted_barrel[word_id][doc_id] = hits
 
-	for word_id, hitlist in inverted_barrel.items():
+	# Might change later
+	# for word_id, hitlist in inverted_barrel.items():
 		
-		inverted_barrel[word_id] = sorted_hitlist(hitlist)
+	# 	inverted_barrel[word_id] = sorted_hitlist(hitlist)
 
 	return inverted_barrel
 
@@ -54,6 +54,7 @@ def inverted_index():
 	
 	print("Building Inverted Index!")
 
+	# For Short Barrels
 	for barrel_path in tqdm(barrels(mode='forward', full=False)):
 		
 		try:
@@ -63,15 +64,17 @@ def inverted_index():
 		except Exception:
 			print('Barrel: {} Failed'.format(barrel_path))
 			continue
-
+		
+		# get file name for barrel
 		barrel_name = barrel_path.split('/')[-1]
 
 		inverted_barrel = invert_barrel(barrel)
 
+		# Save Inverted Barrel
 		with open(os.path.join(SHORT_INVERTED_BARRELS_PATH, barrel_name), 'w') as inverted_barrel_file:
 				json.dump(inverted_barrel, inverted_barrel_file)
 
-
+	# For full barrels
 	for barrel_path in tqdm(barrels(mode='forward', full=True)):
 		
 		try:
@@ -88,6 +91,5 @@ def inverted_index():
 
 		with open(os.path.join(INVERTED_BARRELS_PATH, barrel_name), 'w') as inverted_barrel_file:
 				json.dump(inverted_barrel, inverted_barrel_file)
-
 
 	print("Inverted Index Complete!")

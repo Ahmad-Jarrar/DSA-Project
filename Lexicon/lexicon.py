@@ -16,6 +16,8 @@ def build_lexicon():
 	returns: dict {word: word_id}
 	"""
 	print("Building Lexicon!")
+
+	# If some lexicon already exist load it
 	try:
 		with open(LEXICON_PATH, 'r', encoding='utf8') as lexicon_file:
 			lexicon = json.load(lexicon_file)
@@ -26,6 +28,8 @@ def build_lexicon():
 	
 	
 	words = set()
+
+	# To keep track of files already looked into to build lexicon, useful to update lexicon
 	try:
 		with open(os.path.join(EXTRA_PATH, 'added_to_lexicon.data'), "rb") as fp:   # Unpickling
 			is_included_in_lexicon = pickle.load(fp)
@@ -48,9 +52,11 @@ def build_lexicon():
  
 	#Single Threaded 115s 10000 files
 	for file in tqdm(dataset_files()):
+		# Skip if already looked into
 		if file in is_included_in_lexicon:
 			continue
-
+		
+		# Make create a set of all the words obtained, to remove duplicate
 		words = words.union(set(parse_file(file)))
 		is_included_in_lexicon.append(file)
 

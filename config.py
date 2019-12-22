@@ -1,5 +1,4 @@
 import os
-import shutil
 
 PROJECT_PATH = os.getcwd()
 
@@ -23,7 +22,8 @@ SHORT_INVERTED_BARRELS_PATH = os.path.join(SHORT_BARRELS, 'inverted_barrels')
 
 NO_OF_THREADS = 8
 # NO_OF_BARRELS = 64
-BARREL_CAPACITY = 16000
+# Todo: Change Later
+BARREL_CAPACITY = 1000
 
 
 def build_paths():
@@ -70,3 +70,6 @@ def build_paths():
         os.stat(EXTRA_PATH)
     except:
         os.mkdir(EXTRA_PATH)
+
+if __name__ == "__main__":
+    build_paths()
